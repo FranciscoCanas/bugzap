@@ -64,6 +64,7 @@ class Preprocessor():
         documents = []
         for bug in self.bugs:
             bug['document'] = self.construct_document_from_bug(bug)
+            bug['freq_distribution'] = nltk.FreqDist(bug['document'])
             documents.append(bug['document'])
         return documents
 
@@ -141,7 +142,9 @@ if __name__ == "__main__":
     p = Preprocessor('my.bugs.json')
     pprint(p.bugs[0]['comments'])
     d = p.construct_documents_list()
-    pprint(d[0])
+    for bug in p.bugs:
+        bug['tfidf'] = tf_idf.compute_tf_idf(bug, d)
+        pprint(bug['tfidf'][0:3])
 
 
 
