@@ -21,10 +21,19 @@ class BugQuerySpider(Spider):
         'body': 'pre[class~=bz_comment_text]::text'
     }
 
-    url_base = ""
+    url_base = "https://bugzilla.redhat.com/show_bug.cgi?id="
     name = "query.bugzilla"
     allowed_domains = []
     start_urls = []
+
+    def __init__(self, query=None, domain=None, *args, **kwargs):
+        """
+        Query: The initial Bugzilla query to start the scraping from.
+        Domain: The domain for the bugzilla instance to scrape.
+        """
+        super(BugQuerySpider, self).__init__(*args, **kwargs)
+        #self.allowed_domains = [domain]
+        #self.start_urls = [query]
 
     def parse(self, response):
         """
@@ -33,7 +42,8 @@ class BugQuerySpider(Spider):
         self.bugs = self.parse_bugs(response)
         for bug in self.bugs:
             bug['url'] = self.url_base + str(bug['id'])
-            yield Request(bug['url'],meta={'item':bug},callback=self.parse_comments)
+            yield Request(bug['url'], meta={'item':bug}, callback=self.parse_comments)
+
 
     def parse_bugs(self, response):
         """
