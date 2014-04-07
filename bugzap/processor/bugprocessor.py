@@ -1,7 +1,7 @@
 import json
 from pprint import pprint
 import nltk
-import tf_idf
+from tf_idf import tf_idf
 from preprocessing import pre_process_pipeline, extract_keywords
 
 __author__ = 'mailfrancisco@gmail.com'
@@ -12,6 +12,7 @@ class BugProcessor():
     """
     bugs = []
     documents = []
+    pos_list = ['NN','NNP']
     words_black_list = ['installer', 'installation', 'jboss', 'eap', 'install', 'problem', 'description', 'reproduce',
                         'user','']
 
@@ -36,7 +37,7 @@ class BugProcessor():
     def process_description(self, pbug, desc):
         """
         """
-        tags = pre_process_pipeline(desc, self.words_black_list)
+        tags = pre_process_pipeline(desc, black_list=self.words_black_list, pos_list=self.pos_list, lemmatize=False)
         candidates = set(pbug['candidates'])
         if tags:
              candidates |= set(zip(*tags)[0])
@@ -50,7 +51,10 @@ class BugProcessor():
         for comment in comments:
             pcomment = {}
             try:
-                comment_tags = pre_process_pipeline(comment['body'], self.words_black_list)
+                comment_tags = pre_process_pipeline(comment['body'],
+                                                           black_list=self.words_black_list,
+                                                           pos_list=self.pos_list,
+                                                           lemmatize=False)
                 pcomment['comment'] = comment['body']
                 pcomment['tokenized_comment'] = comment_tags
                 if comment_tags:
@@ -90,28 +94,30 @@ class BugProcessor():
 def stats(bugs):
     all_keywords = []
     for bug in bugs:
-        for word in bug['keywords'][0:5]:
+        for word in bug['keywords']:
             all_keywords.append(word[0])
     keyword_freq = nltk.FreqDist(all_keywords)
     keyword_freq.plot(25,title="Installer Bugs for EAP 6.2")
 
 
 if __name__ == "__main__":
-    p = BugProcessor('installer.bugs.json')
+    p = BugProcessor('eap62.bugs.json')
     documents = p.construct_documents_list()
+    tfidf = tf_idf()
     print str.format("{0} bugs found and analysed.", str(len(p.bugs)))
     print
     with open('processed.json', 'w') as outfile:
         for bug in p.bugs:
-            bug['tfidf'] = tf_idf.compute_tf_idf(bug['candidates'], bug['document'], documents)
+            bug['tfidf'] = tfidf.compute_tf_idf(bug['candidates'], bug['document'], documents)
             bug['keywords'] = extract_keywords(bug['tfidf'], maximal=0.1)
             print "url: " + bug['url']
             print "Description: " + bug['description']
             print "Top 5 Keywords:"
-            pprint(bug['keywords'][0:5])
+            pprint(bug['keywords'])
             print
             json.dump(bug, outfile)
     stats(p.bugs)
+
 
 
 

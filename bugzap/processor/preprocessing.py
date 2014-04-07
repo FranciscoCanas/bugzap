@@ -5,7 +5,8 @@ import nltk
 
 __author__ = 'fcanas'
 
-def pre_process_pipeline(text, black_list):
+
+def pre_process_pipeline(text, pos_tag=True, black_list=None, pos_list=['NN', 'JJ', 'NNP'], pre_process=True, stem=True, lemmatize=True):
     """
     Input: "Big blob of text..."
 
@@ -21,13 +22,14 @@ def pre_process_pipeline(text, black_list):
     """
     processed = []
     tokens = tokenize(text)
-    tokens = pos_tag(tokens)
+    if pos_tag: tokens = pos_tag_tokens(tokens)
+
     for token in tokens:
-        if not filter_by_pos(token) or not filter_by_pattern(token, black_list):
+        if not filter_by_pos(token, pos_list) or not filter_by_pattern(token, black_list):
             continue
-        token = pre_process_text(token)
-        token = stem_token(token)
-        token = lemmatize_token(token)
+        if pre_process: token = pre_process_text(token)
+        if stem: token = stem_token(token)
+        if lemmatize: token = lemmatize_token(token)
         processed.append(token)
     return processed
 
@@ -41,19 +43,20 @@ def tokenize(text):
     tokens = tokenizer.tokenize(text)
     return tokens
 
-def pos_tag(tokens):
+
+def pos_tag_tokens(tokens):
     """
 
     """
     return nltk.pos_tag(tokens)
 
 
-def filter_by_pos(token):
+def filter_by_pos(token, pos_list=['NN', 'JJ', 'NNP']):
     """
     Input: (word, pos)
     Output: True if pos is noun, proper noun, or adj. False otherwise.
     """
-    return token[1] in ['NN', 'JJ', 'NNP']
+    return token[1] in pos_list
 
 
 def pre_process_text(token):
@@ -82,13 +85,13 @@ def lemmatize_token(token):
     return wnl.lemmatize(token[0]), token[1]
 
 
-
-def filter_by_pattern(token, black_list):
+def filter_by_pattern(token, black_list=None):
     """
     Input: (word, pos), [blacklist_word, ...]
     Filters by removing tokens with words that are numbers, or in the black list or in the stop words list.
     Output: False if word is any of the above. True otherwise.
     """
+    if not black_list: black_list = []
     nums = re.compile("^[0-9]*$")
     return token[0].lower() not in map(unicode, black_list) and \
            token[0].lower() not in stopwords.words('english') and \
