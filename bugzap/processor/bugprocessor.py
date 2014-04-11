@@ -1,6 +1,7 @@
 import json
 from pprint import pprint
 import nltk
+from Collocator import Collocator
 from tf_idf import tf_idf
 from preprocessing import pre_process_pipeline, extract_keywords
 
@@ -104,16 +105,23 @@ if __name__ == "__main__":
     p = BugProcessor('eap62.bugs.json')
     documents = p.construct_documents_list()
     tfidf = tf_idf()
+    collocator = Collocator()
     print str.format("{0} bugs found and analysed.", str(len(p.bugs)))
     print
     with open('processed.json', 'w') as outfile:
         for bug in p.bugs:
             bug['tfidf'] = tfidf.compute_tf_idf(bug['candidates'], bug['document'], documents)
             bug['keywords'] = extract_keywords(bug['tfidf'], maximal=0.1)
+            bug['bigrams'] = collocator.find_ngrams(2, bug['document'], 10)
+            bug['trigrams'] = collocator.find_ngrams(3, bug['document'], 10)
             print "url: " + bug['url']
             print "Description: " + bug['description']
-            print "Top 5 Keywords:"
+            print "Top Keywords:"
             pprint(bug['keywords'])
+            print "Top bigrams:"
+            pprint(bug['bigrams'])
+            print "Top trigrams:"
+            pprint(bug['trigrams'])
             print
             json.dump(bug, outfile)
     stats(p.bugs)
