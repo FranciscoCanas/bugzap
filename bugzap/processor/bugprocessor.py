@@ -15,7 +15,7 @@ class BugProcessor():
     documents = []
     pos_list = ['NN','NNP']
     words_black_list = ['installer', 'installation', 'jboss', 'eap', 'install', 'problem', 'description', 'reproduce',
-                        'user','']
+                        'user','number', 'new', 'bz']
 
     def __init__(self, data_file):
         """
@@ -75,7 +75,7 @@ class BugProcessor():
         """
         documents = []
         for bug in self.bugs:
-            bug['document'] = self.construct_document_from_bug(bug)
+            bug['document'], bug['processed_document'] = self.construct_document_from_bug(bug)
             bug['freq_distribution'] = nltk.FreqDist(bug['document'])
             documents.append(bug['document'])
         return documents
@@ -86,10 +86,13 @@ class BugProcessor():
         Returns this doc as a list of tokens.
         """
         document = map(unicode.lower, nltk.word_tokenize(bug['description']))
+        processed_document = pre_process_pipeline(bug['description'])
         for comment in bug['comments']:
             if comment.has_key('comment'):
                 document += map(unicode.lower, nltk.word_tokenize(comment['comment']))
-        return document
+                processed_document += pre_process_pipeline(comment['comment'], lemmatize=False,
+                                                           black_list=self.words_black_list)
+        return document, processed_document
 
 
 def stats(bugs):
@@ -112,8 +115,8 @@ if __name__ == "__main__":
         for bug in p.bugs:
             bug['tfidf'] = tfidf.compute_tf_idf(bug['candidates'], bug['document'], documents)
             bug['keywords'] = extract_keywords(bug['tfidf'], maximal=0.1)
-            bug['bigrams'] = collocator.find_ngrams(2, bug['document'], 10)
-            bug['trigrams'] = collocator.find_ngrams(3, bug['document'], 10)
+            bug['bigrams'] = collocator.find_ngrams(2, bug['processed_document'], 10)
+            bug['trigrams'] = collocator.find_ngrams(3, bug['processed_document'], 10)
             print "url: " + bug['url']
             print "Description: " + bug['description']
             print "Top Keywords:"
