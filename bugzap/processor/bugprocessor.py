@@ -101,16 +101,19 @@ def stats(bugs):
         for word in bug['keywords']:
             all_keywords.append(word[0])
     keyword_freq = nltk.FreqDist(all_keywords)
-    keyword_freq.plot(25,title="Installer Bugs for EAP 6.2")
+    with open('keywords.json', 'w') as outfile:
+        json.dump(keyword_freq, outfile)
+    outfile.close()
+
 
 
 if __name__ == "__main__":
-    p = BugProcessor('eap62.bugs.json')
+    p = BugProcessor('my.bugs.json')
     documents = p.construct_documents_list()
     tfidf = tf_idf()
     collocator = Collocator()
     print "Processing",
-    with open('eap62.processed.json', 'w') as outfile:
+    with open('my.bugs.processed.json', 'w') as outfile:
         for bug in p.bugs:
             print ".",
             bug['tfidf'] = tfidf.compute_tf_idf(bug['candidates'], bug['document'], documents)
@@ -119,6 +122,7 @@ if __name__ == "__main__":
             bug['trigrams'] = collocator.find_ngrams(3, bug['processed_document'], 10)
         json.dump(p.bugs, outfile)
     outfile.close()
+    stats(p.bugs)
 
 
 

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.1/d3.min.js"></script>
+<script src="js/keywords.js"></script>
+</head>
+<style>
+
+.title div {
+  font: 50px sans-serif;
+  text-align: center;
+  border: solid;
+  border-width: 5px;
+  border-color: black;
+  padding: 3px;
+  margin: 1px;
+  color: black;
+}
+
+
+.barchart div {
+  font: 10px sans-serif;
+  background-color: steelblue;
+  text-align: right;
+  padding: 3px;
+  margin: 1px;
+  color: white;
+}
+
+
+</style>
+<body>
+	<div class="title" id="bartitle">
+	Keywords Extracted from Installer BZs
+	</div>
+	<div class="barchart" id="keywords">
+	</div>
+</body>
+</html>
