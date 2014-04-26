@@ -8,34 +8,49 @@
 </head>
 <style>
 
-.title div {
-  font: 50px sans-serif;
-  text-align: center;
-  border: solid;
-  border-width: 5px;
+body {
+	background-color: white;
+}
+
+.barchart_label div {
+	text-align: left;
+  	padding: 3px;
+  	margin: 1px;
+  	width: 10%;
+}
+
+.barchart div {
+  font: 10px sans-serif;
+  background-color: lightblue;
+  border-style: solid;
   border-color: black;
-  padding: 3px;
+  border-width: 1px;
+  padding: 1px;
   margin: 1px;
   color: black;
 }
 
-
-.barchart div {
-  font: 10px sans-serif;
-  background-color: steelblue;
-  text-align: right;
-  padding: 3px;
-  margin: 1px;
-  color: white;
+#chart_container {
+	width: 100%;
+    float: left;
+    border-style: solid;
+  	border-color: black;
+  	border-width: 1px;
 }
 
-
+ #bartitle {
+	font-size: 3em;
+  	text-align: center;
+	padding: 3px;
+	margin: 1px;
+	color: black;
+}
 </style>
+
 <body>
-	<div class="title" id="bartitle">
-	Keywords Extracted from Installer BZs
-	</div>
-	<div class="barchart" id="keywords">
+	<div class="title" id="bartitle">Extracted Keywords</div>
+	<div class="container" id="chart_container">
+		<div class="barchart" id="keywords"></div>
 	</div>
 </body>
 </html>

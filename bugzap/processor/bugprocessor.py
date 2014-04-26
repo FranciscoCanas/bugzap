@@ -101,7 +101,7 @@ def stats(bugs):
         for word in bug['keywords']:
             all_keywords.append(word[0])
     keyword_freq = nltk.FreqDist(all_keywords)
-    with open('keywords.json', 'w') as outfile:
+    with open('bugzap/visualizers/data/keywords.json', 'w') as outfile:
         json.dump(keyword_freq, outfile)
     outfile.close()
 
