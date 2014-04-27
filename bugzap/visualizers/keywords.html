@@ -47,7 +47,9 @@ body {
 }
 </style>
 
-<body>
+<body>	
+	<input type="button" value="load dataset" onclick="load_dataset(document.getElementById('dataset').value)"/>
+	<input type="text" id="dataset"/>
 	<div class="title" id="bartitle">Extracted Keywords</div>
 	<div class="container" id="chart_container">
 		<div class="barchart" id="keywords"></div>

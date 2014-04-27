@@ -1,5 +1,6 @@
+import argparse
 import json
-from pprint import pprint
+import os
 import nltk
 from Collocator import Collocator
 from tf_idf import tf_idf
@@ -15,7 +16,7 @@ class BugProcessor():
     documents = []
     pos_list = ['NN','NNP']
     words_black_list = ['installer', 'installation', 'jboss', 'eap', 'install', 'problem', 'description', 'reproduce',
-                        'user','number', 'new', 'bz']
+                        'user','number', 'new', 'bz', 'ER']
 
     def __init__(self, data_file):
         """
@@ -27,11 +28,16 @@ class BugProcessor():
     def construct_bugs(self):
         """
         """
+        print "Constructing from data..."
         for bug in self.jdata:
             pbug = {'id': str(bug['id']), 'description': bug['description'], 'url': bug['url'], 'candidates': []}
+            print str(bug['id']),
             self.process_comments(pbug, bug['comments'])
+            print '.',
             self.process_description(pbug, bug['description'])
+            print '.',
             self.bugs.append(pbug)
+            print '.'
         self.documents = self.construct_documents_list()
 
 
@@ -74,10 +80,13 @@ class BugProcessor():
         Returns a list of lists of tokens.
         """
         documents = []
+        print "Constructing documents",
         for bug in self.bugs:
+            print ".",
             bug['document'], bug['processed_document'] = self.construct_document_from_bug(bug)
             bug['freq_distribution'] = nltk.FreqDist(bug['document'])
             documents.append(bug['document'])
+        print "."
         return documents
 
     def construct_document_from_bug(self, bug):
@@ -94,35 +103,76 @@ class BugProcessor():
                                                            black_list=self.words_black_list)
         return document, processed_document
 
+def main(args):
+    """
 
-def stats(bugs):
-    all_keywords = []
-    for bug in bugs:
-        for word in bug['keywords']:
-            all_keywords.append(word[0])
-    keyword_freq = nltk.FreqDist(all_keywords)
-    with open('bugzap/visualizers/data/keywords.json', 'w') as outfile:
-        json.dump(keyword_freq, outfile)
+    """
+    bug_file = args.json
+    name = args.name
+    path = 'bugzap/visualizers/data/' + name + '/'
+    processor = BugProcessor(bug_file)
+    documents = processor.documents
+    tfidf = tf_idf()
+    collocator = Collocator()
+
+    make_path(path)
+    extract_statistics(path, processor, tfidf, collocator, documents)
+    store_statistic(path, processor.bugs, 'keywords', lambda x: x[0], nltk.FreqDist)
+    store_statistic(path, processor.bugs, 'bigrams')
+    store_statistic(path, processor.bugs, 'trigrams')
+
+def make_path(path):
+    """
+    Ensures the target path for stat reports is created.
+    """
+    if not os.path.exists(os.path.dirname(path)):
+        os.makedirs(os.path.dirname(path))
+
+def extract_statistics(path, processor, tfidf, collocator, documents):
+    """
+    Gather the statistics from a given set of processed bugs and documents.
+    """
+    print "Extracting statistics",
+    with open(path + 'processed.json', 'w') as outfile:
+        for bug in processor.bugs:
+            process_bug(bug, tfidf, collocator, documents)
+        json.dump(processor.bugs, outfile)
     outfile.close()
 
+def process_bug(bug, tfidf, collocator, documents):
+    """
+    Computes statistics for a given bug based on the documents set.
+    """
+    print str(bug['id']),
+    bug['tfidf'] = tfidf.compute_tf_idf(bug['candidates'], bug['document'], documents)
+    print ".",
+    bug['keywords'] = extract_keywords(bug['tfidf'], maximal=0.1)
+    print ".",
+    bug['bigrams'] = collocator.find_ngrams(2, bug['processed_document'], 10)
+    print ".",
+    bug['trigrams'] = collocator.find_ngrams(3, bug['processed_document'], 10)
+    print "."
+
+def store_statistic(path, bugs, stat, transformer=lambda x: x, compiler=lambda x: x):
+    """
+    Creates a json output file for the given stat and set of bugs.
+    """
+    stats = []
+    for bug in bugs:
+        for item in bug[stat]:
+            stats.append(transformer(item))
+    processed_statistic = compiler(stats)
+    with open(path + stat + '.json', 'w') as outfile:
+        json.dump(processed_statistic, outfile)
+    outfile.close()
 
 
 if __name__ == "__main__":
-    p = BugProcessor('my.bugs.json')
-    documents = p.construct_documents_list()
-    tfidf = tf_idf()
-    collocator = Collocator()
-    print "Processing",
-    with open('my.bugs.processed.json', 'w') as outfile:
-        for bug in p.bugs:
-            print ".",
-            bug['tfidf'] = tfidf.compute_tf_idf(bug['candidates'], bug['document'], documents)
-            bug['keywords'] = extract_keywords(bug['tfidf'], maximal=0.1)
-            bug['bigrams'] = collocator.find_ngrams(2, bug['processed_document'], 10)
-            bug['trigrams'] = collocator.find_ngrams(3, bug['processed_document'], 10)
-        json.dump(p.bugs, outfile)
-    outfile.close()
-    stats(p.bugs)
+    parser = argparse.ArgumentParser(description='Produce keywords and n-grams extracted from Bugzilla reports.')
+    parser.add_argument("-j", "--json", help='A json file containing generated by bug_spider.')
+    parser.add_argument("-n", "--name", help='A name for the set of reports generated.')
+    args = parser.parse_args()
+    main(args)
 
 
 

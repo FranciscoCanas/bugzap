@@ -1,11 +1,12 @@
-var keywords_path = 'data/keywords.json';
 var keywords_json; 
 
 /*
 Get the local json file to store into cached mem.
 */
-function preload_data(path) {
-    console.log('Loading Keywords Json');
+function load_dataset(dataset) {
+	var path = 'data/' + dataset + '/keywords.json';
+    console.log('Loading dataset: ' + dataset);
+    console.log(path)
     $.getJSON(path,
     	function(data) {
         keywords_json=data;
@@ -63,5 +64,4 @@ Call functions to load data and prepare bargraph.
 */
 $(document).ready(function() {
 	console.log('Document ready.');
-	preload_data(keywords_path);
 });
