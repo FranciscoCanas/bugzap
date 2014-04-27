@@ -118,8 +118,8 @@ def main(args):
     make_path(path)
     extract_statistics(path, processor, tfidf, collocator, documents)
     store_statistic(path, processor.bugs, 'keywords', lambda x: x[0], nltk.FreqDist)
-    store_statistic(path, processor.bugs, 'bigrams')
-    store_statistic(path, processor.bugs, 'trigrams')
+    store_statistic(path, processor.bugs, 'bigrams', lambda x: ' '.join(map(lambda y: y[0], x)), nltk.FreqDist)
+    store_statistic(path, processor.bugs, 'trigrams', lambda x: ' '.join(map(lambda y: y[0], x)), nltk.FreqDist)
 
 def make_path(path):
     """
