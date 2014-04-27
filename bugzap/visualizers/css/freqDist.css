@@ -1,32 +1,22 @@
-<style>
 body {
 	background-color: white;
 }
 
-.barchart_label div {
-	text-align: left;
-  	padding: 3px;
-  	margin: 1px;
-  	width: 10%;
+.chart rect {
+  fill: lightblue;
 }
 
-.barchart div {
+.chart text {
   font: 10px sans-serif;
-  background-color: lightblue;
-  border-style: solid;
-  border-color: black;
-  border-width: 1px;
-  padding: 1px;
-  margin: 1px;
-  color: black;
+  fill: black;
 }
 
 #chart_container {
 	width: 100%;
-    float: left;
-    border-style: solid;
-  	border-color: black;
-  	border-width: 1px;
+  float: left;
+  border-style: solid;
+  border-color: black;
+  border-width: 1px;
 }
 
  #bartitle {
@@ -36,4 +26,3 @@ body {
 	margin: 1px;
 	color: black;
 }
-</style>

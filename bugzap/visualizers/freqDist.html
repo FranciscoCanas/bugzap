@@ -9,11 +9,11 @@
 </head>
 <body>	
 	<input type="button" value="load dataset" onclick="load_dataset(document.getElementById('dataset').value, document.getElementById('dist').value)"/>
-	<input type="text" id="dataset"/>
-	<input type="text" id="dist"/>
+	<input type="text" id="dataset" value="eap62"/>
+	<input type="text" id="dist" value="keywords"/>
 	<div class="title" id="bartitle">Extracted Statistics</div>
 	<div class="container" id="chart_container">
-		<div class="barchart" id="histogram"></div>
+		<svg class="chart" id="histogram"></svg>
 	</div>
 </body>
 </html>
