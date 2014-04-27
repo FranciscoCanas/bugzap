@@ -1,37 +1,23 @@
-var keywords_json; 
+var freq_dist_json; 
 
 /*
 Get the local json file to store into cached mem.
 */
-function load_dataset(dataset) {
-	var path = 'data/' + dataset + '/keywords.json';
+function load_dataset(dataset, freqDist) {
+	var path = 'data/' + dataset + '/' + freqDist + '.json';
     console.log('Loading dataset: ' + dataset);
     console.log(path)
     $.getJSON(path,
     	function(data) {
-        keywords_json=data;
-        console.log(keywords_json);
-        prepare_graph(keywords_json);
+        freq_dist_json=data;
+        console.log(freq_dist_json);
+        graph_freq_dist(freq_dist_json);
     });
 }
 
-/*
-Takes a json full of processed bugs and extracts all
-the individual bugs' keywords.
-*/
-function extract_keywords(data) {
-	var keywords = [];
-	data.forEach(function(bug) {
-    	console.log(bug['keywords']);
-    	keywords = keywords.concat(bug['keywords']);
-	});
-	return keywords;
-}
-
-
-function prepare_graph(jdata) {
+function graph_freq_dist(jdata) {
 	var data = jdata;
-	console.log('Preparing bargraph');
+	console.log('Preparing histogram');
 	if (jdata != null) {
 		var keys = $.map(data, function(value, key) {
 			return key;
@@ -47,7 +33,7 @@ function prepare_graph(jdata) {
 		    .domain([0, d3.max(values)])
 		    .range([0, (container.innerWidth() / d3.max(values)) - 4]);
 
-		var chart = d3.select("#keywords");
+		var chart = d3.select("#histogram");
 		var bars = chart.selectAll("div");
 		var barsUpdate = bars.data(Object.keys(data));
 		var barsEnter = barsUpdate.enter().append("div");

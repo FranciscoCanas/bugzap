@@ -1,0 +1,39 @@
+<style>
+body {
+	background-color: white;
+}
+
+.barchart_label div {
+	text-align: left;
+  	padding: 3px;
+  	margin: 1px;
+  	width: 10%;
+}
+
+.barchart div {
+  font: 10px sans-serif;
+  background-color: lightblue;
+  border-style: solid;
+  border-color: black;
+  border-width: 1px;
+  padding: 1px;
+  margin: 1px;
+  color: black;
+}
+
+#chart_container {
+	width: 100%;
+    float: left;
+    border-style: solid;
+  	border-color: black;
+  	border-width: 1px;
+}
+
+ #bartitle {
+	font-size: 3em;
+  	text-align: center;
+	padding: 3px;
+	margin: 1px;
+	color: black;
+}
+</style>

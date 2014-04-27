@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.1/d3.min.js"></script>
+<script src="js/freqDist.js"></script>
+<link href="css/freqDist.css" type="text/css" rel="stylesheet" />
+</head>
+<body>	
+	<input type="button" value="load dataset" onclick="load_dataset(document.getElementById('dataset').value, document.getElementById('dist').value)"/>
+	<input type="text" id="dataset"/>
+	<input type="text" id="dist"/>
+	<div class="title" id="bartitle">Extracted Statistics</div>
+	<div class="container" id="chart_container">
+		<div class="barchart" id="histogram"></div>
+	</div>
+</body>
+</html>
