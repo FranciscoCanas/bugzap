@@ -3,7 +3,7 @@ var frequencyDistributionJson;
 /**
  * Get the local json file to store into cached mem.
  */
-function loadDataset(dataset, freqDist) {
+function loadDataset(dataset, freqDist, topNum) {
 	var path = 'data/' + dataset + '/' + freqDist + '.json';
     console.log('Loading dataset: ' + dataset);
     console.log(path)
@@ -11,7 +11,7 @@ function loadDataset(dataset, freqDist) {
     	function(data) {
         frequencyDistributionJson=data;
         console.log(frequencyDistributionJson);
-        graphFrequencyDistributionSvg();
+        graphFrequencyDistributionSvg(parseInt(topNum));
     });
 }
 
@@ -19,16 +19,16 @@ function loadDataset(dataset, freqDist) {
  * Generates a frequency distribution chart out of a given
  * json of data using the svg library.
  *
- * @param {json} A json containing a frequency distribution.
+ * @param {Int} Top number of items to chart.
  */
-function graphFrequencyDistributionSvg() {
+function graphFrequencyDistributionSvg(topNum) {
 	if (frequencyDistributionJson != null) {
 		var keys = Object.keys(frequencyDistributionJson);
 		var values = $.map(frequencyDistributionJson, function(value, key) {
 			return value;
 		});
 		
-		graphData(keys, values);
+		graphData(topNum, keys, values);
 		
 	} else {
 		console.log('data cannot be found');
@@ -40,69 +40,80 @@ function graphFrequencyDistributionSvg() {
  * a chart, the graph and its axis, then fill the
  * graph with data.
  */
-function graphData(keys, values) {
+function graphData(topNum, keys, values) {
 	var data = frequencyDistributionJson;
 	var width = $("body").width();
+	var xMax = d3.max(values);
 	var barHeight = 20;
+
+	// remove old sv.
+	$("body svg").remove();
 	
+	// create chart svg container.
 	var chart = d3.select("body").append("svg")
 				.attr("class", "chart")
 				.attr("id", "histogram")
 				.attr("width", width)
-				.attr("height", barHeight * keys.length);
+				.attr("height", barHeight * (topNum + 1));
 
-	var x_scale = d3.scale.linear()
-		.domain([0, d3.max(values)])
+    // set up scales and x axis.
+	var xScale = d3.scale.linear()
+		.domain([0, xMax + 1])
 		.range([0, width]);
 
-	var y_scale = d3.scale.linear()
+	var yScale = d3.scale.linear()
 		.range([0,barHeight * keys.length]);
 
 	var xAxis = d3.svg.axis()
-	    .ticks(d3.max(values))
-		.scale(x_scale);
+	    .ticks(xMax)
+		.scale(xScale);
 
+	// draw chart lines.
 	chart.selectAll("line.x")
-		  .data(x_scale.ticks(d3.max(values)))
+		  .data(xScale.ticks(xMax))
 		  .enter().append("line")
 		  .attr("class", "x")
-		  .attr("x1", x_scale)
-		  .attr("x2", x_scale)
+		  .attr("x1", xScale)
+		  .attr("x2", xScale)
 		  .attr("y1", 0)
-		  .attr("y2", barHeight * keys.length)
+		  .attr("y2", barHeight * (topNum + 1))
 		  .style("stroke", "#ccc");
 
+    
+    // fill graph with data.
+	fillGraph(topNum, keys, values, chart, barHeight, xScale);
+
+	// attach axis after filling graph.
 	chart.append("g")
 		.attr("class", "axis")
 		.attr("id", "x-axis")
 		.call(xAxis);
-
-	fillGraph(chart, barHeight, x_scale);
 }
 
 /**
  * Given the dataset, a chart object, a bar height and 
  * an x scale functions, fill the graph. 
  */
-function fillGraph(chart, barHeight, x_scale) {
+function fillGraph(top, keys, values, chart, barHeight, xScale) {
 	var data = frequencyDistributionJson;
+	console.log(keys.slice(0,top));
 	var bar = chart.selectAll("g")
-			.data(Object.keys(data))
+			.data(keys.slice(0,top))
 			.enter()
 			.append("g")
 			.attr("transform", function(item, index){
-				return "translate(0," + index * barHeight +")";
+				return "translate(0," + (index + 1)* barHeight +")";
 			});
 
 		bar.append("rect")
 			.attr("height", barHeight - 1)
 			.attr("width", function(item) {
-				return x_scale(data[item]);
+				return xScale(data[item]);
 			});
 
 		bar.append("text")
 			.attr("x", function(item) { 
-				var pos = x_scale(data[item]);
+				var pos = xScale(data[item]);
 				return pos - 3;
 			})
 			.attr("y", barHeight / 2)
