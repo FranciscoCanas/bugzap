@@ -6,11 +6,9 @@ var frequencyDistributionJson;
 function loadDataset(dataset, freqDist, topNum) {
 	var path = 'data/' + dataset + '/' + freqDist + '.json';
     console.log('Loading dataset: ' + dataset);
-    console.log(path)
     $.getJSON(path,
     	function(data) {
         frequencyDistributionJson=data;
-        console.log(frequencyDistributionJson);
         graphFrequencyDistributionSvg(parseInt(topNum));
     });
 }
@@ -42,9 +40,15 @@ function graphFrequencyDistributionSvg(topNum) {
  */
 function graphData(topNum, keys, values) {
 	var data = frequencyDistributionJson;
-	var width = $("body").width();
-	var xMax = d3.max(values);
 	var barHeight = 20;
+	var xMax = d3.max(values);
+	var lengths = $.map(keys, function(value, index) { return value.length; } );
+	// make this based on longest label
+	var xPadding = d3.max(lengths) * 5;
+	var yPadding = 25;
+    var width = $("body").width();
+    var height = barHeight * (topNum);
+	
 
 	// remove old sv.
 	$("body svg").remove();
@@ -54,19 +58,25 @@ function graphData(topNum, keys, values) {
 				.attr("class", "chart")
 				.attr("id", "histogram")
 				.attr("width", width)
-				.attr("height", barHeight * (topNum + 1));
-
+    			.attr("height", height)
+	
     // set up scales and x axis.
 	var xScale = d3.scale.linear()
-		.domain([0, xMax + 1])
-		.range([0, width]);
+		.domain([0, xMax])
+		.range([0, width - 2 * xPadding ]);
 
-	var yScale = d3.scale.linear()
-		.range([0,barHeight * keys.length]);
+	var yScale = d3.scale.ordinal()
+    	.domain(keys.slice(0,topNum))
+    	.rangeBands([0,height]);
 
 	var xAxis = d3.svg.axis()
-	    .ticks(xMax)
+	    .ticks(10)
+	    .orient("top")
 		.scale(xScale);
+
+	var yAxis = d3.svg.axis()
+		.orient("left")
+		.scale(yScale);
 
 	// draw chart lines.
 	chart.selectAll("line.x")
@@ -76,25 +86,33 @@ function graphData(topNum, keys, values) {
 		  .attr("x1", xScale)
 		  .attr("x2", xScale)
 		  .attr("y1", 0)
-		  .attr("y2", barHeight * (topNum + 1))
+		  .attr("y2", height)
+		  .attr("transform", "translate(" + xPadding + "," + yPadding + ")")
 		  .style("stroke", "#ccc");
 
     
     // fill graph with data.
-	fillGraph(topNum, keys, values, chart, barHeight, xScale);
+	fillGraph(topNum, keys, values, chart, barHeight, xScale, xPadding, yPadding);
 
 	// attach axis after filling graph.
 	chart.append("g")
 		.attr("class", "axis")
 		.attr("id", "x-axis")
+		.attr("transform", "translate(" + xPadding + "," + yPadding + ")")
 		.call(xAxis);
+
+	chart.append("g")
+		.attr("class", "axis")
+		.attr("id", "y-axis")
+		.attr("transform", "translate(" + xPadding + "," + yPadding + ")")
+		.call(yAxis);
 }
 
 /**
  * Given the dataset, a chart object, a bar height and 
  * an x scale functions, fill the graph. 
  */
-function fillGraph(top, keys, values, chart, barHeight, xScale) {
+function fillGraph(top, keys, values, chart, barHeight, xScale, xPadding, yPadding) {
 	var data = frequencyDistributionJson;
 	console.log(keys.slice(0,top));
 	var bar = chart.selectAll("g")
@@ -102,7 +120,7 @@ function fillGraph(top, keys, values, chart, barHeight, xScale) {
 			.enter()
 			.append("g")
 			.attr("transform", function(item, index){
-				return "translate(0," + (index + 1)* barHeight +")";
+				return "translate(" + xPadding + "," + ((index * barHeight) + yPadding) +")";
 			});
 
 		bar.append("rect")
@@ -110,15 +128,6 @@ function fillGraph(top, keys, values, chart, barHeight, xScale) {
 			.attr("width", function(item) {
 				return xScale(data[item]);
 			});
-
-		bar.append("text")
-			.attr("x", function(item) { 
-				var pos = xScale(data[item]);
-				return pos - 3;
-			})
-			.attr("y", barHeight / 2)
-			.attr("dy", ".35em")
-			.text(function(item){ return item; });
 }
 
 /**
