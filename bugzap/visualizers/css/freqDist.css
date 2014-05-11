@@ -26,3 +26,7 @@ body {
 	margin: 1px;
 	color: black;
 }
+
+.x axis text {
+  font: 10px sans-serif;
+}
