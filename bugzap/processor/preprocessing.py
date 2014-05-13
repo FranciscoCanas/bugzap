@@ -98,15 +98,16 @@ def filter_by_pattern(token, black_list=None):
            not nums.match(token[0])
 
 
-def extract_keywords(candidates, maximal=0.00):
+def extract_keywords(tf_idf_scores, positioning_scores, maximal=0.00):
     """
-    Input: [(candidate, tf-idf score), ...], maximal value
-    1) Compute tf-idf for each of the candidates.
-    2) Remove candidates with score less than 1/5 of maximal value.
-    Output [(candidate, tf-idf score), ...]
+    Input: sorted list of tf-idf candidate scores
+           hash of position scores.
+
+    output: list of (candidate, score=tf-idf * positioning)
     """
     keywords = []
-    for candidate in candidates:
+    for candidate in tf_idf_scores:
         if candidate[1] > (maximal / 5):
-            keywords.append((candidate[0], candidate[1]))
+            score = candidate[1] * positioning_scores[candidate[0]]
+            keywords.append((candidate[0], score))
     return keywords

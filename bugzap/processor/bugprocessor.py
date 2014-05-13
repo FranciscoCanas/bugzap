@@ -3,6 +3,7 @@ import json
 import os
 import nltk
 from Collocator import Collocator
+from Positioning import Positioning
 from tf_idf import tf_idf
 from preprocessing import pre_process_pipeline, extract_keywords
 
@@ -114,9 +115,10 @@ def main(args):
     documents = processor.documents
     tfidf = tf_idf()
     collocator = Collocator()
+    positioning = Positioning()
 
     make_path(path)
-    extract_statistics(path, processor, tfidf, collocator, documents)
+    extract_statistics(path, processor, tfidf, collocator, positioning, documents)
     store_statistic(path, processor.bugs, 'keywords', lambda x: x[0], nltk.FreqDist)
     store_statistic(path, processor.bugs, 'bigrams', lambda x: ' '.join(map(lambda y: y[0], x)), nltk.FreqDist)
     store_statistic(path, processor.bugs, 'trigrams', lambda x: ' '.join(map(lambda y: y[0], x)), nltk.FreqDist)
@@ -128,25 +130,26 @@ def make_path(path):
     if not os.path.exists(os.path.dirname(path)):
         os.makedirs(os.path.dirname(path))
 
-def extract_statistics(path, processor, tfidf, collocator, documents):
+def extract_statistics(path, processor, tfidf, collocator, positioning, documents):
     """
     Gather the statistics from a given set of processed bugs and documents.
     """
     print "Extracting statistics",
     with open(path + 'processed.json', 'w') as outfile:
         for bug in processor.bugs:
-            process_bug(bug, tfidf, collocator, documents)
+            process_bug(bug, tfidf, collocator, positioning, documents)
         json.dump(processor.bugs, outfile)
     outfile.close()
 
-def process_bug(bug, tfidf, collocator, documents):
+def process_bug(bug, tfidf, collocator, positioning, documents):
     """
     Computes statistics for a given bug based on the documents set.
     """
     print str(bug['id']),
     bug['tfidf'] = tfidf.compute_tf_idf(bug['candidates'], bug['document'], documents)
+    bug['positioning'] = positioning.compute_position_score(bug['candidates'], bug['document'])
     print ".",
-    bug['keywords'] = extract_keywords(bug['tfidf'], maximal=0.1)
+    bug['keywords'] = extract_keywords(bug['tfidf'], bug['positioning'], maximal=0.1)
     print ".",
     bug['bigrams'] = collocator.find_ngrams(2, bug['processed_document'], 10)
     print ".",
