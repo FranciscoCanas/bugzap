@@ -47,7 +47,7 @@ function graphData(topNum, keys, values) {
 	var xPadding = d3.max(lengths) * 5;
 	var yPadding = 25;
     var width = $("body").width();
-    var height = barHeight * (topNum);
+    var height = barHeight * Math.min(topNum, keys.length);
 	
 
 	// remove old sv.
@@ -66,7 +66,7 @@ function graphData(topNum, keys, values) {
 		.range([0, width - 2 * xPadding ]);
 
 	var yScale = d3.scale.ordinal()
-    	.domain(keys.slice(0,topNum))
+    	.domain(keys.slice(0,Math.min(topNum, keys.length) - 1))
     	.rangeBands([0,height]);
 
 	var xAxis = d3.svg.axis()
