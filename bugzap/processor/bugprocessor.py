@@ -17,7 +17,8 @@ class BugProcessor():
     documents = []
     pos_list = ['NN','NNP']
     words_black_list = ['installer', 'installation', 'jboss', 'eap', 'install', 'problem', 'description', 'reproduce',
-                        'user','number', 'new', 'bz', 'ER']
+                        'user','number', 'new', 'bz', 'ER', 'actual', 'results', 'expected', 'reproducible' 'target', 'release',
+                        'milestone']
 
     def __init__(self, data_file):
         """

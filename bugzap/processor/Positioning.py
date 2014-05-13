@@ -1,13 +1,15 @@
 
 class Positioning():
+
     def __init__(self):
-        self.scores = {}
+        pass
 
     def compute_position_score(self, tokens, document):
         """
         Compute the positioning score for each of the tokens in this
         document and return a map of token => score.
         """
+        self.scores = {}
         for token in tokens:
             if not token in self.scores.keys():
                 self.scores[token] = self.positioning_score(token, document)
