@@ -9,7 +9,7 @@ class tf_idf():
 
     def compute_tf_idf(self, candidates, document, documents):
         """
-        For each token used in this bug:
+        For each token used in candidates list:
         Compute the final tf-idf score. The product of tf * idf.
         Returns a list of tuples: (word, tf-idf score)
         Sorted by tf-idf score.

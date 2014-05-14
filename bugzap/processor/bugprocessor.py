@@ -18,7 +18,7 @@ class BugProcessor():
     pos_list = ['NN','NNP']
     words_black_list = ['installer', 'installation', 'jboss', 'eap', 'install', 'problem', 'description', 'reproduce',
                         'user','number', 'new', 'bz', 'ER', 'actual', 'results', 'expected', 'reproducible' 'target', 'release',
-                        'milestone']
+                        'milestone', 'run', 'default', 'er','er1', 'er2','er3', 'er4', 'er5', 'er6']
 
     def __init__(self, data_file):
         """
@@ -123,6 +123,7 @@ def main(args):
     store_statistic(path, processor.bugs, 'keywords', lambda x: x[0], nltk.FreqDist)
     store_statistic(path, processor.bugs, 'bigrams', lambda x: ' '.join(map(lambda y: y[0], x)), nltk.FreqDist)
     store_statistic(path, processor.bugs, 'trigrams', lambda x: ' '.join(map(lambda y: y[0], x)), nltk.FreqDist)
+    store_keyword_map(path, processor.bugs)
 
 def make_path(path):
     """
@@ -170,6 +171,20 @@ def store_statistic(path, bugs, stat, transformer=lambda x: x, compiler=lambda x
         json.dump(processed_statistic, outfile)
     outfile.close()
 
+def store_keyword_map(path, bugs):
+    """
+    Stores a dictionary of keywords to ids of BZs containing them:
+    (keyword => [BZ id, ...])
+    """
+    dict = {}
+    for bug in bugs:
+        for word in bug['keywords']:
+            if not dict.has_key(word[0]):
+                dict[word[0]] = []
+            dict[word[0]].append(str(bug['id']))
+    with open(path + 'keymap' + '.json', 'w') as outfile:
+        json.dump(dict, outfile)
+    outfile.close()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Produce keywords and n-grams extracted from Bugzilla reports.')

@@ -31,4 +31,4 @@ class Positioning():
         Return a score based on the position of token in a
         body of tokens, normalized by length.
         """
-        return 1.0 - float(self.first_occurrence(token, body)) / float(len(body))
+        return 1.0 + (1.0 - float(self.first_occurrence(token, body)) / float(len(body)))
