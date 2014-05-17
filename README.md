@@ -19,7 +19,7 @@ from the bugs' respective descriptions and comments.
 
 feature extraction
 ------------
-These documents are then passed through a series processing pipeline to extract
+These documents are then passed through a processing pipeline to extract
 useful features: Currently using term Frequency, document Frequency, position in document body.
 
 

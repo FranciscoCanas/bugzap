@@ -96,18 +96,3 @@ def filter_by_pattern(token, black_list=None):
     return token[0].lower() not in map(unicode, black_list) and \
            token[0].lower() not in stopwords.words('english') and \
            not nums.match(token[0])
-
-
-def extract_keywords(tf_idf_scores, positioning_scores, maximal=0.00):
-    """
-    Input: sorted list of tf-idf candidate scores
-           hash of position scores.
-
-    output: list of (candidate, score=tf-idf * positioning)
-    """
-    keywords = []
-    for candidate in tf_idf_scores:
-        if candidate[1] > (maximal / 5):
-            score = candidate[1] * positioning_scores[candidate[0]]
-            keywords.append((candidate[0], score))
-    return keywords

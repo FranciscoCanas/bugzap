@@ -3,7 +3,7 @@ from nltk.collocations import *
 
 __author__ = 'fcanas'
 
-class Collocator():
+class Collocations():
 
     def __init__(self):
         pass

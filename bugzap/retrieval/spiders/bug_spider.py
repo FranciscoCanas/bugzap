@@ -1,9 +1,12 @@
-from scrapy.contrib.loader import ItemLoader
 from scrapy.http import Request
+
 from scrapy.spider import Spider
 from scrapy.selector import Selector
-from bugzap.items import Bug, Comment
-from bugzap.spiders.loaders import BugLoader, CommentsLoader
+
+from bugzap.retrieval.items import Bug, Comment
+
+from bugzap.retrieval.spiders.loaders import BugLoader, CommentsLoader
+
 
 class BugQuerySpider(Spider):
     queries = {

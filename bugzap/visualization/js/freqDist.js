@@ -127,7 +127,15 @@ function fillGraph(top, keys, values, chart, barHeight, xScale, xPadding, yPaddi
 			.attr("height", barHeight - 1)
 			.attr("width", function(item) {
 				return xScale(data[item]);
-			});
+			})
+			.attr("onlick", function() {
+				console.log('dang');
+			})
+}
+
+function bzUrl(id) {
+	var url = 'http://bugzilla.redhat.com/show_bug.cgi?id='
+	return url;
 }
 
 /**
