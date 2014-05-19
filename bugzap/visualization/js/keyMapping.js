@@ -2,31 +2,8 @@
  * Responsible for generating links to the original 
  * BZ reports containing some given unigram. 
  */ 
-
- var metaDataJson;
- var keyMapJson;
-
-/**
- * Loads the given file from the given dataset into
- * the specified container.
- */
- function loadJson(dataset, jfile, container) {
- 	var path = 'data/' + dataset + '/' + jfile;
- 	console.log('Loading ' + jfile + ' for ' + dataset);
- 	 $.getJSON(path,
-    	function(data) {
-        container=eval(data);
-    });
- }
-
- function loadKeymap(dataset) {
- 	loadJson(dataset, 'keymap.json', keyMapJson);
- }
-
- function loadMetaData(dataset) {
- 	loadJson(dataset, 'metadata.json', metaDataJson);
- }
-
+var metaDataJson;
+var keyMapJson;
 /**
  * Return the url to the given bz.
  */
@@ -38,3 +15,21 @@ function constructUrl(id) {
 function getIdsFromKey(key) {
 	return keyMapJson[key];
 }
+
+function makeMap(keys) {
+	var parent = $('#mapToId');
+	$.each(keys, function(i,el) {
+        	makeMapEntry(parent, el);
+    	});
+}
+
+function makeMapEntry(parent, element) {
+	parent.append('<div><a href="'+ constructUrl(element)+ '">' + element +'</a></div>');
+}
+
+$(document).ready(function() {
+	var key = localStorage.getItem('_current_key');
+	keyMapJson = JSON.parse(localStorage.getItem('_keyMapJson'));
+	$('#mapTitle').text(key);
+	makeMap(getIdsFromKey(key));
+});

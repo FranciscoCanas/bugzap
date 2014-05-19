@@ -16,9 +16,9 @@ body {
   float: left;
 }
 
- #bartitle {
+ .title {
 	font-size: 3em;
-  	text-align: center;
+  text-align: center;
 	padding: 3px;
 	margin: 1px;
 	color: black;

@@ -3,9 +3,7 @@
  * json file that contains frequency distribution for any 
  * arbitrary set of objects or stats.
  */
-
 var frequencyDistributionJson; 
-
 /**
  * Get the local json file to store into cached mem.
  */
@@ -17,7 +15,20 @@ function loadDataset(dataset, freqDist, topNum) {
         frequencyDistributionJson=data;
         graphFrequencyDistributionSvg(parseInt(topNum));
     });
+    loadKeymap(dataset);
 }
+
+/**
+ * Loads the given keymap from the given dataset.
+ */
+ function loadKeymap(dataset) {
+ 	var path = 'data/' + dataset + '/keymap.json';
+ 	console.log('Loading keymap for ' + dataset);
+ 	 $.getJSON(path,
+    	function(data) {
+        localStorage.setItem('_keyMapJson', JSON.stringify(data));
+    });
+ }
 
 /**
  * Generates a frequency distribution chart out of a given
@@ -134,14 +145,14 @@ function fillGraph(top, keys, values, chart, barHeight, xScale, xPadding, yPaddi
 			.attr("width", function(item) {
 				return xScale(data[item]);
 			})
-			.attr("onlick", function() {
-				console.log('dang');
-			})
+			.on("click", function(item) {
+				$(this).append(transitionToKeyMap(item));
+			});
 }
 
-function bzUrl(id) {
-	var url = 'http://bugzilla.redhat.com/show_bug.cgi?id='
-	return url;
+function transitionToKeyMap(key) {
+    localStorage.setItem('_current_key', key);
+	location.href = 'keyToId.html';
 }
 
 /**
