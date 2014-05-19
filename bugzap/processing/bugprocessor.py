@@ -1,5 +1,5 @@
-import json
 import os
+import json
 import nltk
 from features.Positioning import Positioning
 from features.tf_idf import tf_idf
@@ -15,7 +15,8 @@ class BugProcessor():
     pos_list = ['NN','NNP']
     words_black_list = ['installer', 'installation', 'jboss', 'eap', 'install', 'problem', 'description', 'reproduce',
                         'user','number', 'new', 'bz', 'ER', 'actual', 'results', 'expected', 'reproducible' 'target', 'release',
-                        'milestone', 'run', 'default', 'er','er1', 'er2','er3', 'er4', 'er5', 'er6']
+                        'milestone', 'run', 'default', 'er','er1', 'er2','er3', 'er4', 'er5', 'er6', 'see', 'severity',
+                        'priority', 'error', 'fix', 'actual']
 
     def __init__(self, data_file):
         """
@@ -143,16 +144,17 @@ def process_bug(bug, tfidf, collocator, positioning, documents):
     """
     print str(bug['id']),
     bug['tfidf'] = tfidf.compute_tf_idf(bug['candidates'], bug['document'], documents)
+    print ".",
     bug['positioning'] = positioning.compute_position_score(bug['candidates'], bug['document'])
     print ".",
-    bug['keywords'] = extract_keywords(bug['tfidf'], bug['positioning'], maximal=0.1)
+    bug['keywords'] = extract_keywords(bug['tfidf'], bug['positioning'], lower_cutoff=0.1)
     print ".",
     bug['bigrams'] = collocator.find_ngrams(2, bug['processed_document'], 10)
     print ".",
     bug['trigrams'] = collocator.find_ngrams(3, bug['processed_document'], 10)
     print "."
 
-def extract_keywords(tf_idf_scores, positioning_scores, maximal=0.00):
+def extract_keywords(tf_idf_scores, positioning_scores, lower_cutoff=0.0001):
     """
     Input: sorted list of tf-idf candidate scores
            hash of position scores.
@@ -161,8 +163,8 @@ def extract_keywords(tf_idf_scores, positioning_scores, maximal=0.00):
     """
     keywords = []
     for candidate in tf_idf_scores:
-        if candidate[1] > (maximal / 5):
-            score = candidate[1] * positioning_scores[candidate[0]]
+        if candidate[1] > lower_cutoff:
+            score = candidate[1] * 2 * positioning_scores[candidate[0]]
             keywords.append((candidate[0], score))
     return keywords
 

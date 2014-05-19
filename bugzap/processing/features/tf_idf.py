@@ -32,15 +32,15 @@ class tf_idf():
         """
         Compute the inverse document frequency: A score of how uncommon a word
         is among all the documents.
-        log(total_number_of_docs/number_of_docs_tag_appears_in)
+        log(total_number_of_docs/1 + number_of_docs_tag_appears_in)
         Returns a list of tuples: (word, idf score)
         """
         idfs = []
-        score_idf = lambda w, docs: 1.0 + sum([1 for d in docs if w.lower() in d])
+        score_idf = lambda w, docs: sum([1 for d in docs if w.lower() in d])
 
         for word in set(sorted(candidates)):
             if not self.idf_cache.has_key(word):
-                idf = math.log(len(documents) / score_idf(word, documents))
+                idf = math.log(len(documents) / 1.0 + score_idf(word, documents))
                 self.idf_cache[word]=idf
             else:
                 idf = self.idf_cache[word]

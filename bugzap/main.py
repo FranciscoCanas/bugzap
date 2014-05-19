@@ -19,7 +19,7 @@ def process(bugs_file, bugs_data_name):
     Given a source file containing bugzilla reports in json format, produce keyword n-grams extracted
     from the report bodies.
     """
-    path = 'bugzap/bugzap/visualization/data/' + bugs_data_name + '/'
+    path = 'bugzap/visualization/data/' + bugs_data_name + '/'
     process_bug(bugs_file, path)
 
 

@@ -1,3 +1,9 @@
+/**
+ * Responsible for generating  SVG histograms out of a given 
+ * json file that contains frequency distribution for any 
+ * arbitrary set of objects or stats.
+ */
+
 var frequencyDistributionJson; 
 
 /**
@@ -44,7 +50,7 @@ function graphData(topNum, keys, values) {
 	var xMax = d3.max(values);
 	var lengths = $.map(keys, function(value, index) { return value.length; } );
 	// make this based on longest label
-	var xPadding = d3.max(lengths) * 5;
+	var xPadding = d3.max(lengths) * 8;
 	var yPadding = 25;
     var width = $("body").width();
     var height = barHeight * Math.min(topNum, keys.length);
