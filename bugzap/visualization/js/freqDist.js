@@ -83,7 +83,7 @@ function graphData(topNum, keys, values) {
 		.range([0, width - 2 * xPadding ]);
 
 	var yScale = d3.scale.ordinal()
-    	.domain(keys.slice(0,Math.min(topNum, keys.length) - 1))
+    	.domain(keys.slice(0,Math.min(topNum, keys.length)))
     	.rangeBands([0,height]);
 
 	var xAxis = d3.svg.axis()
