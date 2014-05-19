@@ -17,14 +17,20 @@ function getIdsFromKey(key) {
 }
 
 function makeMap(keys) {
-	var parent = $('#mapToId');
+	var table = $('#mapToIdBody');
 	$.each(keys, function(i,el) {
-        	makeMapEntry(parent, el);
+        	makeMapEntry(table, el);
     	});
 }
 
 function makeMapEntry(parent, element) {
-	parent.append('<div><a href="'+ constructUrl(element)+ '">' + element +'</a></div>');
+	var desc = 'temporary for now';
+	parent.append('<tr><th><a href="'+ 
+		constructUrl(element)+ '">' + 
+		element +'</a></th><td>' + 
+		desc + '</td>' +
+		'<td>somestuff</td></tr>'
+		);
 }
 
 $(document).ready(function() {
