@@ -118,7 +118,7 @@ def process(bug_file, path):
     store_statistic(path, processor.bugs, 'keywords', lambda x: x[0], nltk.FreqDist)
     store_statistic(path, processor.bugs, 'bigrams', lambda x: ' '.join(map(lambda y: y[0], x)), nltk.FreqDist)
     store_statistic(path, processor.bugs, 'trigrams', lambda x: ' '.join(map(lambda y: y[0], x)), nltk.FreqDist)
-    store_keyword_map(path, processor.bugs)
+    store_collections(path, processor.bugs)
 
 def make_path(path):
     """
@@ -132,11 +132,9 @@ def extract_statistics(path, processor, tfidf, collocator, positioning, document
     Gather the statistics from a given set of processed bugs and documents.
     """
     print "Extracting statistics",
-    with open(path + 'processed.json', 'w') as outfile:
-        for bug in processor.bugs:
-            process_bug(bug, tfidf, collocator, positioning, documents)
-        json.dump(processor.bugs, outfile)
-    outfile.close()
+    for bug in processor.bugs:
+        process_bug(bug, tfidf, collocator, positioning, documents)
+
 
 def process_bug(bug, tfidf, collocator, positioning, documents):
     """
@@ -147,7 +145,7 @@ def process_bug(bug, tfidf, collocator, positioning, documents):
     print ".",
     bug['positioning'] = positioning.compute_position_score(bug['candidates'], bug['document'])
     print ".",
-    bug['keywords'] = extract_keywords(bug['tfidf'], bug['positioning'], lower_cutoff=0.1)
+    bug['keywords'] = extract_keywords(bug['tfidf'], bug['positioning'], lower_cutoff=0.001)
     print ".",
     bug['bigrams'] = collocator.find_ngrams(2, bug['processed_document'], 10)
     print ".",
@@ -181,19 +179,29 @@ def store_statistic(path, bugs, stat, transformer=lambda x: x, compiler=lambda x
         json.dump(processed_statistic, outfile)
     outfile.close()
 
-def store_keyword_map(path, bugs):
+
+def store_collections(path, bugs):
     """
-    Stores a dictionary of keywords to ids of BZs containing them:
+    Stores the collections:
     (keyword => [BZ id, ...])
+    (BZ id => Bug)
     """
-    dict = {}
+    keymap = {}
+    bugmap = {}
+
     for bug in bugs:
+        bugmap[bug['id']] = bug
         for word in bug['keywords']:
-            if not dict.has_key(word[0]):
-                dict[word[0]] = []
-            dict[word[0]].append(str(bug['id']))
-    with open(path + 'keymap' + '.json', 'w') as outfile:
-        json.dump(dict, outfile)
+            if not keymap.has_key(word[0]):
+                keymap[word[0]] = []
+            keymap[word[0]].append(str(bug['id']))
+
+    with open(path + 'keymap.json', 'w') as outfile:
+        json.dump(keymap, outfile)
+    outfile.close()
+
+    with open(path + 'bugmap.json', 'w') as outfile:
+        json.dump(bugmap, outfile)
     outfile.close()
 
 

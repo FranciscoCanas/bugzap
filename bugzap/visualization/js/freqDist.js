@@ -16,6 +16,7 @@ function loadDataset(dataset, freqDist, topNum) {
         graphFrequencyDistributionSvg(parseInt(topNum));
     });
     loadKeymap(dataset);
+    loadBugmap(dataset);
 }
 
 /**
@@ -28,6 +29,15 @@ function loadDataset(dataset, freqDist, topNum) {
     	function(data) {
         localStorage.setItem('_keyMapJson', JSON.stringify(data));
     });
+ }
+
+ function loadBugmap(dataset) {
+ 	var path = 'data/' + dataset + '/bugmap.json';
+ 	console.log('Loading keymap for ' + dataset);
+ 	 $.getJSON(path,
+    	function(data) {
+        localStorage.setItem('_bugMapJson', JSON.stringify(data));
+    });	
  }
 
 /**

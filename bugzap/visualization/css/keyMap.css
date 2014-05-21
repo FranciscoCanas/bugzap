@@ -1,0 +1,27 @@
+ .title {
+	font-size: 3em;
+  text-align: center;
+	padding: 3px;
+	margin: 1px;
+	color: black;
+}
+
+table {
+	 border-collapse:collapse;
+}
+
+.outer td, th
+{
+	text-align:left;
+	border: 1px solid black;
+	padding:2px 25px 2px 25px;
+}
+
+.inner > tbody > tr > td {
+	border: 0px solid black;
+}
+
+#mapToId
+{
+	border: 1px solid black;
+}

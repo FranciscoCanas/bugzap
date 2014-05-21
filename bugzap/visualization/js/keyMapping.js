@@ -4,6 +4,8 @@
  */ 
 var metaDataJson;
 var keyMapJson;
+var bugMapJson;
+var chosenKey;
 /**
  * Return the url to the given bz.
  */
@@ -24,18 +26,32 @@ function makeMap(keys) {
 }
 
 function makeMapEntry(parent, element) {
-	var desc = 'temporary for now';
+	var bug = bugMapJson[element];
+	var desc = bug['description'];
+	var keywords = bug['keywords'];
+
 	parent.append('<tr><th><a href="'+ 
-		constructUrl(element)+ '">' + 
+		constructUrl(element) + '">' + 
 		element +'</a></th><td>' + 
-		desc + '</td>' +
-		'<td>somestuff</td></tr>'
-		);
+		desc + '</td><td id="' + element + '"></td></tr>');
+
+	var top5 = makeTopWords(keywords.slice(0,5));
+	console.log(parent.find('#' + element).append(top5));	
+}
+
+function makeTopWords(keywords) {
+	var top = $('<table class="inner"></table>');
+	for (var word in keywords) {
+ 		top.append('<tr><td>' + keywords[word].join(": ") + '</td></tr>');
+ 		console.log(word +':'+ keywords[word]);
+	}
+	return top;
 }
 
 $(document).ready(function() {
-	var key = localStorage.getItem('_current_key');
+	chosenKey = localStorage.getItem('_current_key');
 	keyMapJson = JSON.parse(localStorage.getItem('_keyMapJson'));
-	$('#mapTitle').text(key);
-	makeMap(getIdsFromKey(key));
+	bugMapJson = JSON.parse(localStorage.getItem('_bugMapJson'));
+	$('#mapTitle').text(chosenKey);
+	makeMap(getIdsFromKey(chosenKey));
 });
