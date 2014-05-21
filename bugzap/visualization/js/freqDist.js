@@ -14,31 +14,9 @@ function loadDataset(dataset, freqDist, topNum) {
     	function(data) {
         frequencyDistributionJson=data;
         graphFrequencyDistributionSvg(parseInt(topNum));
+        localStorage.setItem('_current_dataset', dataset);
     });
-    loadKeymap(dataset);
-    loadBugmap(dataset);
 }
-
-/**
- * Loads the given keymap from the given dataset.
- */
- function loadKeymap(dataset) {
- 	var path = 'data/' + dataset + '/keymap.json';
- 	console.log('Loading keymap for ' + dataset);
- 	 $.getJSON(path,
-    	function(data) {
-        localStorage.setItem('_keyMapJson', JSON.stringify(data));
-    });
- }
-
- function loadBugmap(dataset) {
- 	var path = 'data/' + dataset + '/bugmap.json';
- 	console.log('Loading keymap for ' + dataset);
- 	 $.getJSON(path,
-    	function(data) {
-        localStorage.setItem('_bugMapJson', JSON.stringify(data));
-    });	
- }
 
 /**
  * Generates a frequency distribution chart out of a given

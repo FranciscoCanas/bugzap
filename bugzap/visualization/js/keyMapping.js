@@ -3,9 +3,10 @@
  * BZ reports containing some given unigram. 
  */ 
 var metaDataJson;
-var keyMapJson;
-var bugMapJson;
-var chosenKey;
+var keymap;
+var bugmap;
+var currentKey;
+var currentDataset;
 /**
  * Return the url to the given bz.
  */
@@ -15,7 +16,7 @@ function constructUrl(id) {
 }
 
 function getIdsFromKey(key) {
-	return keyMapJson[key];
+	return keymap[key];
 }
 
 function makeMap(keys) {
@@ -25,8 +26,33 @@ function makeMap(keys) {
     	});
 }
 
+/**
+ * Loads the given keymap from the given dataset.
+ */
+ function loadKeymap(dataset) {
+ 	var path = ' data/' + dataset + '/keymap.json';
+	console.log('Loading' + path); 	 
+	$.getJSON(path,
+    	function(data) {
+        keymap = data;
+        console.log(keymap);
+        loadBugmap(dataset);
+    });
+ }
+
+function loadBugmap(dataset) {
+ 	var path = ' data/' + dataset + '/bugmap.json';
+ 	console.log('Loading' + path);
+ 	 $.getJSON(path,
+    	function(data) {
+        bugmap = data;
+        console.log(bugmap);
+        makeMap(getIdsFromKey(currentKey));
+    });	
+ }
+
 function makeMapEntry(parent, element) {
-	var bug = bugMapJson[element];
+	var bug = bugmap[element];
 	var desc = bug['description'];
 	var keywords = bug['keywords'];
 
@@ -49,9 +75,8 @@ function makeTopWords(keywords) {
 }
 
 $(document).ready(function() {
-	chosenKey = localStorage.getItem('_current_key');
-	keyMapJson = JSON.parse(localStorage.getItem('_keyMapJson'));
-	bugMapJson = JSON.parse(localStorage.getItem('_bugMapJson'));
-	$('#mapTitle').text(chosenKey);
-	makeMap(getIdsFromKey(chosenKey));
+	currentDataset = localStorage.getItem('_current_dataset');
+	currentKey = localStorage.getItem('_current_key');
+	$('#mapTitle').text(currentKey);
+	loadKeymap(currentDataset);
 });
