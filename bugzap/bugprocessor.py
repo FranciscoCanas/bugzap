@@ -1,10 +1,10 @@
 import os
 import json
 import nltk
-from features.Positioning import Positioning
-from features.tf_idf import tf_idf
-from features.Collocations import Collocations
-from preprocessors.preprocessing import pre_process_pipeline
+from keyextractor.src.features.Collocations import Collocations
+from keyextractor.src.features.Positioning import Positioning
+from keyextractor.src.features.tf_idf import tf_idf
+from keyextractor.src.preprocessors.preprocessing import pre_process_pipeline
 
 
 class BugProcessor():
