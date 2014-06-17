@@ -1,8 +1,8 @@
 from scrapy.http import Request
 from scrapy.spider import Spider
-from scrapy.selector import HtmlXPathSelector as Selector
-from retrieval.items import Bug, Comment
-from retrieval.spiders.loaders import BugLoader, CommentsLoader
+from scrapy.selector import Selector
+from ..items import Bug, Comment
+from loaders import BugLoader, CommentsLoader
 
 
 class BugQuerySpider(Spider):
@@ -32,8 +32,8 @@ class BugQuerySpider(Spider):
         Domain: The domain for the bugzilla instance to scrape.
         """
         super(BugQuerySpider, self).__init__(*args, **kwargs)
-        self.allowed_domains = [domain]
-        self.start_urls = [query]
+        #self.allowed_domains = [domain]
+        #self.start_urls = [query]
 
     def parse(self, response):
         """

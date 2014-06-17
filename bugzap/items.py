@@ -3,7 +3,6 @@
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/items.html
 from scrapy.contrib.loader.processor import TakeFirst
-
 from scrapy.item import Item, Field
 
 class Bug(Item):

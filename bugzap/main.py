@@ -2,8 +2,7 @@ from twisted.internet import reactor
 from scrapy.crawler import Crawler
 from scrapy import log, signals
 from scrapy.utils.project import get_project_settings
-from retrieval.spiders.bug_spider import BugQuerySpider
-from processing.bugprocessor import process as process_bug
+from bugprocessor import process as process_bug
 import argparse
 
 
@@ -34,15 +33,16 @@ def retrieve(url, domain, bugs_data_name):
     start a spider and retrieve all bug reports pertaining to
     that starting url.
     """
-    spider = BugQuerySpider(query=url, domain=domain)
-    settings = get_project_settings()
-    crawler = Crawler(settings)
-    crawler.signals.connect(reactor.stop, signal=signals.spider_closed)
-    crawler.configure()
-    crawler.crawl(spider)
-    crawler.start()
-    log.start()
-    reactor.run()
+    # spider = BugQuerySpider(query=url, domain=domain)
+    # settings = get_project_settings()
+    # crawler = Crawler(settings)
+    # crawler.signals.connect(reactor.stop, signal=signals.spider_closed)
+    # crawler.configure()
+    # crawler.crawl(spider)
+    # crawler.start()
+    # log.start()
+    # reactor.run()
+    pass
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Produce keywords and n-grams extracted from Bugzilla reports.')
