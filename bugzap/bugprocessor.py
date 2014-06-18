@@ -1,10 +1,6 @@
 import os
 import json
-import nltk
-from keyextractor.src.features.Collocations import Collocations
-from keyextractor.src.features.Positioning import Positioning
-from keyextractor.src.features.tf_idf import tf_idf
-from keyextractor.src.preprocessors.preprocessing import pre_process_pipeline
+from keyextractor.src.extractor import Extractor
 
 
 class BugProcessor():
@@ -13,112 +9,85 @@ class BugProcessor():
     bugs = []
     documents = []
     pos_list = ['NN','NNP']
+    base_url = 'http://'
     words_black_list = ['installer', 'installation', 'jboss', 'eap', 'install', 'problem', 'description', 'reproduce',
                         'user','number', 'new', 'bz', 'ER', 'actual', 'results', 'expected', 'reproducible' 'target', 'release',
                         'milestone', 'run', 'default', 'er','er1', 'er2','er3', 'er4', 'er5', 'er6', 'see', 'severity',
                         'priority', 'error', 'fix', 'actual']
 
-    def __init__(self, data_file):
+    def __init__(self, data_file, data_set_name):
         """
+        Load a JSON containing BUGZILLA bug reports and process them into a format useable by the
+        keyextractor.
         """
+
+        self.documents = []
+        self.metadata = {}
+        self.data_set = data_set_name
+        self.path = 'documents/' + data_set_name + '/'
+        self.target_file = self.path + 'documents.json'
+
         with open(data_file) as j:
             self.jdata = json.load(j)
-            self.construct_bugs()
+        j.close()
 
-    def construct_bugs(self):
+        self.construct_documents()
+        self.construct_metadata()
+        self.export()
+        self.nlp_args = {
+            'pre_process': True,
+            'stem': False,
+            'lemmatize': False,
+            'pos_list': self.pos_list,
+            'tfidf_cutoff': 0.002
+        }
+
+        Extractor(self.target_file, 'bugzap/visualization/data/' + data_set_name, self.nlp_args)
+
+    def construct_documents(self):
         """
+        Fill the list of documents by gathering all text body from description and comments of each
+        bugzilla report.
         """
-        print "Constructing from data..."
-        for bug in self.jdata:
-            pbug = {'id': str(bug['id']), 'description': bug['description'], 'url': bug['url'], 'candidates': []}
-            print str(bug['id']),
-            self.process_comments(pbug, bug['comments'])
-            print '.',
-            self.process_description(pbug, bug['description'])
-            print '.',
-            self.bugs.append(pbug)
-            print '.'
-        self.documents = self.construct_documents_list()
+        for doc in self.jdata:
+            document = {}
+            document['id'] = doc['id']
+            document['body'] = doc['description'] + " " + self.join_comments(doc['comments'])
+            self.documents.append(document)
+
+    def construct_metadata(self):
+        """
+        Creates the metadata dict for this set of bug reports.
+        """
+        self.metadata['black_list'] = self.words_black_list
+        self.metadata['base_url'] = self.generate_base_url()
 
 
-    def process_description(self, pbug, desc):
+    def join_comments(self, comments):
         """
+        Pieces all bugzilla comment bodies together into a single blob.
         """
-        tags = pre_process_pipeline(desc, black_list=self.words_black_list, pos_list=self.pos_list, lemmatize=False)
-        candidates = set(pbug['candidates'])
-        if tags:
-             candidates |= set(zip(*tags)[0])
-        pbug['candidates'] = list(candidates)
+        return " ".join([comment['body'] for comment in comments])
 
-    def process_comments(self, pbug, comments):
+    def generate_base_url(self):
         """
+        Makes the base url for this set of bug reports. Uses the first bug report as a
+        template.
         """
-        pcomments = []
-        candidates = set(pbug['candidates'])
-        for comment in comments:
-            pcomment = {}
-            try:
-                comment_tags = pre_process_pipeline(comment['body'],
-                                                           black_list=self.words_black_list,
-                                                           pos_list=self.pos_list,
-                                                           lemmatize=False)
-                pcomment['comment'] = comment['body']
-                pcomment['tokenized_comment'] = comment_tags
-                if comment_tags:
-                    candidates |= set(zip(*comment_tags)[0])
-            except KeyError:
-                pcomment['comment'] = ""
-                pcomment['tokenized_comment'] = ""
-            pcomments.append(pcomment)
-        pbug['comments'] = pcomments
-        pbug['candidates'] = list(candidates)
+        bug = self.jdata[0]
+        return bug['url'].replace(bug['id'], '{0}')
 
-    def construct_documents_list(self):
+    def export(self):
         """
-        Generates a list of all the 'documents': that is, a list of bodies of text created by
-        putting together every comment for each bug.
-        Returns a list of lists of tokens.
+        Export the data to the target path.
         """
-        documents = []
-        print "Constructing documents",
-        for bug in self.bugs:
-            print ".",
-            bug['document'], bug['processed_document'] = self.construct_document_from_bug(bug)
-            bug['freq_distribution'] = nltk.FreqDist(bug['document'])
-            documents.append(bug['document'])
-        print "."
-        return documents
+        data = {'metadata': self.metadata,
+                'documents': self.documents}
+        make_path(self.path)
+        with open(self.target_file, 'w') as outfile:
+            json.dump(data, outfile)
+        outfile.close()
 
-    def construct_document_from_bug(self, bug):
-        """
-        Generates a single document from the description and all of the comments in a bug.
-        Returns this doc as a list of tokens.
-        """
-        document = map(unicode.lower, nltk.word_tokenize(bug['description']))
-        processed_document = pre_process_pipeline(bug['description'])
-        for comment in bug['comments']:
-            if comment.has_key('comment'):
-                document += map(unicode.lower, nltk.word_tokenize(comment['comment']))
-                processed_document += pre_process_pipeline(comment['comment'], lemmatize=False,
-                                                           black_list=self.words_black_list)
-        return document, processed_document
-
-def process(bug_file, path):
-    """
-
-    """
-    processor = BugProcessor(bug_file)
-    documents = processor.documents
-    tfidf = tf_idf()
-    collocations = Collocations()
-    positioning = Positioning()
-
-    make_path(path)
-    extract_statistics(path, processor, tfidf, collocations, positioning, documents)
-    store_statistic(path, processor.bugs, 'keywords', lambda x: x[0], nltk.FreqDist)
-    store_statistic(path, processor.bugs, 'bigrams', lambda x: ' '.join(map(lambda y: y[0], x)), nltk.FreqDist)
-    store_statistic(path, processor.bugs, 'trigrams', lambda x: ' '.join(map(lambda y: y[0], x)), nltk.FreqDist)
-    store_collections(path, processor.bugs)
 
 def make_path(path):
     """
@@ -126,84 +95,3 @@ def make_path(path):
     """
     if not os.path.exists(os.path.dirname(path)):
         os.makedirs(os.path.dirname(path))
-
-def extract_statistics(path, processor, tfidf, collocator, positioning, documents):
-    """
-    Gather the statistics from a given set of processed bugs and documents.
-    """
-    print "Extracting statistics",
-    for bug in processor.bugs:
-        process_bug(bug, tfidf, collocator, positioning, documents)
-
-
-def process_bug(bug, tfidf, collocator, positioning, documents):
-    """
-    Computes statistics for a given bug based on the documents set.
-    """
-    print str(bug['id']),
-    bug['tfidf'] = tfidf.compute_tf_idf(bug['candidates'], bug['document'], documents)
-    print ".",
-    bug['positioning'] = positioning.compute_position_score(bug['candidates'], bug['document'])
-    print ".",
-    bug['keywords'] = extract_keywords(bug['tfidf'], bug['positioning'], lower_cutoff=0.001)
-    print ".",
-    bug['bigrams'] = collocator.find_ngrams(2, bug['processed_document'], 10)
-    print ".",
-    bug['trigrams'] = collocator.find_ngrams(3, bug['processed_document'], 10)
-    print "."
-
-def extract_keywords(tf_idf_scores, positioning_scores, lower_cutoff=0.0001):
-    """
-    Input: sorted list of tf-idf candidate scores
-           hash of position scores.
-
-    output: list of (candidate, score=tf-idf * positioning)
-    """
-    keywords = []
-    for candidate in tf_idf_scores:
-        if candidate[1] > lower_cutoff:
-            score = candidate[1] * 2 * positioning_scores[candidate[0]]
-            keywords.append((candidate[0], score))
-    return keywords
-
-def store_statistic(path, bugs, stat, transformer=lambda x: x, compiler=lambda x: x):
-    """
-    Creates a json output file for the given stat and set of bugs.
-    """
-    stats = []
-    for bug in bugs:
-        for item in bug[stat]:
-            stats.append(transformer(item))
-    processed_statistic = compiler(stats)
-    with open(path + stat + '.json', 'w') as outfile:
-        json.dump(processed_statistic, outfile)
-    outfile.close()
-
-
-def store_collections(path, bugs):
-    """
-    Stores the collections:
-    (keyword => [BZ id, ...])
-    (BZ id => Bug)
-    """
-    keymap = {}
-    bugmap = {}
-
-    for bug in bugs:
-        bugmap[bug['id']] = bug
-        for word in bug['keywords']:
-            if not keymap.has_key(word[0]):
-                keymap[word[0]] = []
-            keymap[word[0]].append(str(bug['id']))
-
-    with open(path + 'keymap.json', 'w') as outfile:
-        json.dump(keymap, outfile)
-    outfile.close()
-
-    with open(path + 'bugmap.json', 'w') as outfile:
-        json.dump(bugmap, outfile)
-    outfile.close()
-
-
-
-

@@ -1,9 +1,6 @@
-from twisted.internet import reactor
-from scrapy.crawler import Crawler
-from scrapy import log, signals
-from scrapy.utils.project import get_project_settings
-from bugprocessor import process as process_bug
 import argparse
+from bugprocessor import BugProcessor
+from keyextractor.src.extractor import Extractor
 
 
 def main(args):
@@ -23,8 +20,7 @@ def process(bugs_file, bugs_data_name):
     Given a source file containing bugzilla reports in json format, produce keyword n-grams extracted
     from the report bodies.
     """
-    path = 'bugzap/visualization/data/' + bugs_data_name + '/'
-    process_bug(bugs_file, path)
+    BugProcessor(bugs_file, bugs_data_name)
 
 
 def retrieve(url, domain, bugs_data_name):
