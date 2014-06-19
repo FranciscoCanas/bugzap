@@ -44,7 +44,7 @@ function makeMap(keys) {
  }
 
 function loadBugmap(dataset) {
- 	var path = ' data/' + dataset + '/bugmap.json';
+ 	var path = ' data/' + dataset + '/docmap.json';
  	console.log('Loading' + path);
  	if (bugmap == null) {
 	 	 $.getJSON(path,
