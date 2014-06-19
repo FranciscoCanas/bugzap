@@ -11,8 +11,7 @@ var currentDataset;
  * Return the url to the given bz.
  */
 function constructUrl(id) {
-	var url = 'http://bugzilla.redhat.com/show_bug.cgi?id=' + id
-	return url;
+	return bugmap[id]['url'];
 }
 
 function getIdsFromKey(key) {

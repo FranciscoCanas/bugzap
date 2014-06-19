@@ -6,14 +6,20 @@ from keyextractor.src.extractor import Extractor
 class BugProcessor():
     """
     """
-    bugs = []
-    documents = []
-    pos_list = ['NN','NNP']
-    base_url = 'http://'
-    words_black_list = ['installer', 'installation', 'jboss', 'eap', 'install', 'problem', 'description', 'reproduce',
+    nlp_args = {
+            'black_list': ['installer', 'installation', 'jboss', 'eap', 'install', 'problem', 'description', 'reproduce',
                         'user','number', 'new', 'bz', 'ER', 'actual', 'results', 'expected', 'reproducible' 'target', 'release',
                         'milestone', 'run', 'default', 'er','er1', 'er2','er3', 'er4', 'er5', 'er6', 'see', 'severity',
-                        'priority', 'error', 'fix', 'actual']
+                        'priority', 'error', 'fix', 'actual', 'verified', 'bug', 'steps'],
+            'pre_process': True,
+            'stem': False,
+            'lemmatize': False,
+            'pos_list': ['NN','NNP'],
+            'tfidf_cutoff': 0.002
+        }
+    bugs = []
+    documents = []
+    base_url = 'http://'
 
     def __init__(self, data_file, data_set_name):
         """
@@ -34,13 +40,7 @@ class BugProcessor():
         self.construct_documents()
         self.construct_metadata()
         self.export()
-        self.nlp_args = {
-            'pre_process': True,
-            'stem': False,
-            'lemmatize': False,
-            'pos_list': self.pos_list,
-            'tfidf_cutoff': 0.002
-        }
+
 
         Extractor(self.target_file, 'bugzap/visualization/data/' + data_set_name, self.nlp_args)
 
@@ -59,7 +59,6 @@ class BugProcessor():
         """
         Creates the metadata dict for this set of bug reports.
         """
-        self.metadata['black_list'] = self.words_black_list
         self.metadata['base_url'] = self.generate_base_url()
 
 
@@ -67,7 +66,7 @@ class BugProcessor():
         """
         Pieces all bugzilla comment bodies together into a single blob.
         """
-        return " ".join([comment['body'] for comment in comments])
+        return " ".join([comment['body'] for comment in comments if comment.has_key('body')])
 
     def generate_base_url(self):
         """
