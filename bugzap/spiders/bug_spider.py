@@ -26,14 +26,23 @@ class BugQuerySpider(Spider):
     allowed_domains = []
     start_urls = []
 
-    def __init__(self, query=None, domain=None, *args, **kwargs):
+    def __init__(self, query, *args, **kwargs):
         """
         Query: The initial Bugzilla query to start the scraping from.
         Domain: The domain for the bugzilla instance to scrape.
         """
+        self.init_query(query)
         super(BugQuerySpider, self).__init__(*args, **kwargs)
-        #self.allowed_domains = [domain]
-        #self.start_urls = [query]
+
+    def init_query(self, path):
+        """
+        Given the path to a query file, obtain the domain and start_urls.
+        """
+        with open(path, 'r') as qfile:
+            lines = qfile.readlines()
+            self.allowed_domains = [lines[0].strip()]
+            for line in lines[1:]:
+                self.start_urls.append(line.strip())
 
     def parse(self, response):
         """
