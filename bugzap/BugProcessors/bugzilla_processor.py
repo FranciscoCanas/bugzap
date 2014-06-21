@@ -1,4 +1,4 @@
-from BugProcessors.bugprocessor import BugProcessor
+from bugprocessor import BugProcessor
 
 __author__ = 'fcanas'
 
@@ -9,6 +9,7 @@ DESCRIPTION = 'description'
 URL = 'base_url'
 
 class BugzillaProcessor(BugProcessor):
+    default_black_list_path = 'blacklists/bugzilla'
     """
     Bugzilla bug report processor.
     """
