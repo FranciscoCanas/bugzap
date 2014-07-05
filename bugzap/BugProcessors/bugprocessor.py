@@ -80,7 +80,7 @@ class BugProcessor():
     def runDistiller(self, data_set_name):
         """
         """
-        Distiller(self.target_file, 'bugzap/visualization/data/' + data_set_name, self.nlp_args)
+        Distiller(self.target_file, 'bugzap/visualization/data/' + data_set_name, self.nlp_args, verbosity=3)
 
 
 def generate_black_list(path):
