@@ -49,3 +49,5 @@ The reports can be viewed from Mozilla by opening bugzap/visualization/freqDist.
 
     $ firefox bugzap/visualization/freqDist.html
 
+ ![alt tag](https://github.com/FranciscoCanas/bugzap/raw/master/resources/samplenail.png)
+
