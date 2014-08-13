@@ -21,7 +21,7 @@ class BugQuerySpider(Spider):
         'body': 'pre[class~=bz_comment_text]::text'
     }
 
-    url_base = "https://bugzilla.redhat.com/show_bug.cgi?id="
+    url_base = "https://{0}/bugzilla/show_bug.cgi?id="
     name = "query.bugzilla"
     allowed_domains = []
     start_urls = []
@@ -41,6 +41,7 @@ class BugQuerySpider(Spider):
         with open(path, 'r') as qfile:
             lines = qfile.readlines()
             self.allowed_domains = [lines[0].strip()]
+            self.url_base = self.url_base.format(self.allowed_domains[0])
             for line in lines[1:]:
                 self.start_urls.append(line.strip())
 
