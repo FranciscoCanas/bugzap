@@ -14,7 +14,7 @@ class BugProcessor():
             'normalize': True,
             'stem': False,
             'lemmatize': False,
-            'pos_list': ['NN','NNP'],
+            'pos_list': ['NNP'],
             'tfidf_cutoff': 0.0001
         }
     bugs = []

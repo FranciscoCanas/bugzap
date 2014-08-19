@@ -31,6 +31,7 @@ class BugzillaProcessor(BugProcessor):
             document = {}
             document[ID] = doc[ID]
             document[BODY] = doc[DESCRIPTION] + " " + self.join_comments(doc[COMMENTS])
+            document[DESCRIPTION] = doc[DESCRIPTION]
             self.documents.append(document)
 
     @staticmethod
